@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packaging Stage-Gate Tracker | Stage-Gate Project Tracker</title>
+    <!-- Tailwind CSS (Vite will compile this via css/styles.css) -->
+    <link rel="stylesheet" href="/css/styles.css" />
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="h-full text-slate-800 font-sans antialiased">
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="screen-login" class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-slate-900">
+      <div class="sm:mx-auto  sm:w-full sm:max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-100 fade-in">
+        <div class="flex justify-center mb-6">
+          <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-md shadow-indigo-200">
+            <i data-lucide="package-open" class="h-8 w-8"></i>
+          </div>
+        </div>
+        <h2 class="text-center text-2xl font-bold tracking-tight text-slate-900 font-sans">Packaging Stage-Gate Tracker</h2>
+        <p class="mt-1 text-center text-sm text-slate-500">Unilever Stage-Gate Project Workflow Tracker</p>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <form id="login-form" class="space-y-6">
+            <div>
+              <label for="username" class="block text-sm font-medium text-slate-700">User ID / Username</label>
+              <div class="mt-2 relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  <i data-lucide="user" class="h-4 w-4"></i>
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  placeholder="e.g. m2sunilb"
+                  class="block w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="fullname" class="block text-sm font-medium text-slate-700">Full Name (Mock SSO)</label>
+              <div class="mt-2 relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  <i data-lucide="signature" class="h-4 w-4"></i>
+                </div>
+                <input
+                  id="fullname"
+                  name="fullname"
+                  type="text"
+                  required
+                  placeholder="e.g. Sunil Kumar"
+                  class="block w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-3 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none sm:text-sm"
+                />
+              </div>
+              <p class="mt-2 text-xs text-slate-400">
+                This applet implements standard single sign-on (SSO) simulation. Enter any details to login as that user.
+              </p>
+            </div>
+
+            <div id="login-error" class="hidden rounded-xl bg-red-50 p-4 border border-red-200">
+              <div class="flex">
+                <div class="flex-shrink-0 text-red-400">
+                  <i data-lucide="alert-circle" class="h-5 w-5"></i>
+                </div>
+                <div class="ml-3">
+                  <p id="login-error-text" class="text-sm font-medium text-red-800"></p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                class="flex w-full justify-center rounded-xl bg-indigo-600 px-3 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all cursor-pointer"
+              >
+                Log In / Mock SSO
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== APP CONTAINER ==================== -->
+    <div id="app-wrapper" class="hidden h-full flex flex-row overflow-hidden bg-slate-50">
+      
+      <!-- 1. LEFT SIDEBAR -->
+      <aside class="w-64 flex flex-col bg-slate-900 text-white border-r border-slate-800 flex-shrink-0 h-full">
+        <!-- Sidebar Brand Header -->
+        <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
+          <div class="bg-indigo-600 text-white p-2 rounded-lg">
+            <i data-lucide="package-open" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-base leading-tight font-sans tracking-tight">Stage-Gate Tracker</h1>
+            <span class="text-xs text-slate-400">Unilever Gate Tracker</span>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          <button
+            data-nav="dashboard"
+            class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white cursor-pointer"
+          >
+            <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+            <span>Dashboard / Reports</span>
+          </button>
+
+          <button
+            data-nav="projects"
+            class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white cursor-pointer"
+          >
+            <i data-lucide="folder-kanban" class="h-5 w-5"></i>
+            <span>My Projects</span>
+          </button>
+
+          <button
+            data-nav="new-project"
+            class="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white cursor-pointer"
+          >
+            <i data-lucide="plus-circle" class="h-5 w-5"></i>
+            <span>Create New Project</span>
+          </button>
+        </nav>
+
+        <!-- Current User Info & Logout -->
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            <div id="user-avatar" class="h-10 w-10 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-inner uppercase">
+              U
+            </div>
+            <div class="flex-1 min-w-0">
+              <p id="user-name-display" class="text-sm font-semibold text-white truncate"></p>
+              <p id="user-id-display" class="text-xs text-slate-400 truncate"></p>
+            </div>
+          </div>
+          <button
+            id="btn-logout"
+            class="flex items-center gap-2 justify-center w-full px-3 py-2 text-xs font-semibold rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer"
+          >
+            <i data-lucide="log-out" class="h-4 w-4"></i>
+            <span>Log Out</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- 2. MAIN APP CONTENT AREA (Header + Variable Screens) -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0">
+          <div class="flex items-center gap-4 w-1/3">
+            <!-- Search field (updates dynamic list of active screen) -->
+            <div class="relative w-full">
+              <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <i data-lucide="search" class="h-4 w-4"></i>
+              </span>
+              <input
+                id="global-search"
+                type="text"
+                placeholder="Search projects..."
+                class="block w-full max-w-xs rounded-xl border border-slate-200 py-1.5 pl-10 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-6">
+            <!-- Notifications panel (visual/mock) -->
+            <div class="relative text-slate-400 hover:text-slate-600 cursor-pointer">
+              <i data-lucide="bell" class="h-5 w-5"></i>
+              <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            </div>
+
+            <!-- Help & Documentation info -->
+            <div class="text-slate-400 hover:text-slate-600 flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Packaging Stage-Gate Tracker Documentation">
+              <i data-lucide="help-circle" class="h-5 w-5"></i>
+              <span class="hidden sm:inline">Desire Lab Support</span>
+            </div>
+
+            <!-- Profile indicator -->
+            <div class="h-8 w-px bg-slate-200"></div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold text-slate-500">MPT Status:</span>
+              <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">AWS Active</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- MAIN SCROLLABLE CONTAINER FOR SCREENS -->
+        <div class="flex-1 overflow-y-auto p-8">
+          
+          <!-- SCREEN A: DASHBOARD / REPORTS -->
+          <section id="screen-dashboard" class="space-y-8 fade-in">
+            <!-- Title & Create Affordance -->
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Workflows Dashboard</h2>
+                <p class="text-sm text-slate-500">Overview of Innovation, Renovation and 5S project workflows</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button
+                  id="btn-dash-seed"
+                  class="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow hover:bg-emerald-500 cursor-pointer transition-all"
+                >
+                  <i data-lucide="database" class="h-4 w-4"></i>
+                  <span>Seed 15 Mock Projects</span>
+                </button>
+                <button
+                  id="btn-dash-create"
+                  class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow hover:bg-indigo-500 cursor-pointer transition-all"
+                >
+                  <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                  <span>Create New Project</span>
+                </button>
+              </div>
+            </div>
+
+
+            <!-- Dashboard / Reports Dynamic Filters -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between px-6 py-4 bg-slate-50 gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Status:</span>
+                  <button id="dash-filter-all" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition-all cursor-pointer">
+                    All Projects
+                  </button>
+                  <button id="dash-filter-progress" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                    In Progress
+                  </button>
+                  <button id="dash-filter-completed" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                    Completed
+                  </button>
+                  <button id="dash-filter-hold" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                    On Hold
+                  </button>
+                  <button id="dash-filter-overdue" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition-all cursor-pointer">
+                    Overdue (>30d)
+                  </button>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-4">
+                  <!-- Type Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="dash-filter-type-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Type</label>
+                    <select id="dash-filter-type-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Types</option>
+                      <option value="Innovation">Innovation</option>
+                      <option value="Renovation">Renovation</option>
+                      <option value="5S">5S Program</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Stage Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="dash-filter-stage-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage</label>
+                    <select id="dash-filter-stage-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Stages</option>
+                      <option value="1">1: Marketing Brief</option>
+                      <option value="2">2: Technical Brief</option>
+                      <option value="3">3: Start Gate</option>
+                      <option value="4">4: Idea Generation</option>
+                      <option value="5">5: Idea Screening</option>
+                      <option value="6">6: Develop Gate</option>
+                      <option value="7">7: Design & Proto</option>
+                      <option value="8">8: Concept Lock</option>
+                      <option value="9">9: Pilot Tool</option>
+                      <option value="10">10: Pilot Test</option>
+                      <option value="11">11: Feasibility</option>
+                      <option value="12">12: Launch Lock Gate</option>
+                      <option value="13">13: Product Lock</option>
+                      <option value="14">14: Launch Lock</option>
+                      <option value="15">15: Scale-up</option>
+                    </select>
+                  </div>
+
+                  <!-- Phase Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="dash-filter-phase-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phase</label>
+                    <select id="dash-filter-phase-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Phases</option>
+                      <option value="Pre-start">Pre-start (1-3)</option>
+                      <option value="Explore">Explore (4-6)</option>
+                      <option value="Validate">Validate (7-12)</option>
+                      <option value="Execute">Execute (13-15)</option>
+                    </select>
+                  </div>
+
+                  <div class="text-xs font-medium text-slate-400" id="dash-projects-count-badge">Showing 0 of 0 projects</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+              <div class="bg-white overflow-hidden rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+                <div>
+                  <dt class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Projects</dt>
+                  <dd id="stat-total" class="mt-1 text-3xl font-bold text-slate-900 tracking-tight">0</dd>
+                </div>
+                <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl"><i data-lucide="folder" class="h-6 w-6"></i></div>
+              </div>
+
+              <div class="bg-white overflow-hidden rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+                <div>
+                  <dt class="text-xs font-medium text-slate-400 uppercase tracking-wider">In Progress</dt>
+                  <dd id="stat-progress" class="mt-1 text-3xl font-bold text-indigo-600 tracking-tight">0</dd>
+                </div>
+                <div class="bg-blue-50 text-blue-600 p-3 rounded-xl"><i data-lucide="play" class="h-6 w-6"></i></div>
+              </div>
+
+              <div class="bg-white overflow-hidden rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+                <div>
+                  <dt class="text-xs font-medium text-slate-400 uppercase tracking-wider">Completed</dt>
+                  <dd id="stat-completed" class="mt-1 text-3xl font-bold text-green-600 tracking-tight">0</dd>
+                </div>
+                <div class="bg-green-50 text-green-600 p-3 rounded-xl"><i data-lucide="check-circle" class="h-6 w-6"></i></div>
+              </div>
+
+              <div class="bg-white overflow-hidden rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+                <div>
+                  <dt class="text-xs font-medium text-slate-400 uppercase tracking-wider">On Hold</dt>
+                  <dd id="stat-hold" class="mt-1 text-3xl font-bold text-amber-600 tracking-tight">0</dd>
+                </div>
+                <div class="bg-amber-50 text-amber-600 p-3 rounded-xl"><i data-lucide="pause-circle" class="h-6 w-6"></i></div>
+              </div>
+
+              <div class="bg-white overflow-hidden rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+                <div>
+                  <dt class="text-xs font-medium text-slate-400 uppercase tracking-wider">Overdue (>30d)</dt>
+                  <dd id="stat-overdue" class="mt-1 text-3xl font-bold text-rose-600 tracking-tight">0</dd>
+                </div>
+                <div class="bg-rose-50 text-rose-600 p-3 rounded-xl"><i data-lucide="alert-triangle" class="h-6 w-6"></i></div>
+              </div>
+            </div>
+
+            <!-- Charts & Metrics Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <!-- Column 1 & 2: Project types & chart -->
+              <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <h3 class="font-bold text-slate-900 text-lg">Project Type Breakdown & Stages</h3>
+                  <span class="text-xs text-slate-400">Innovation vs Renovation vs 5S</span>
+                </div>
+                <!-- SVG Chart showing bar statistics of Projects by Status -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                  <div class="w-full md:w-1/2 flex flex-col items-center justify-center">
+                    <!-- Donut Chart Drawn with raw SVG inside canvas wrapper -->
+                    <div id="dashboard-donut-wrapper" class="relative flex items-center justify-center">
+                      <!-- SVG inserted here dynamically -->
+                    </div>
+                    <!-- Legend for Donut Chart (Status Breakdown) -->
+                    <div id="dashboard-donut-legend" class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs font-semibold text-slate-600 mt-4">
+                      <!-- Legend elements inserted here dynamically -->
+                    </div>
+                  </div>
+                  <div class="w-full md:w-1/2 space-y-4">
+                    <h4 class="text-sm font-semibold text-slate-700">Project Type Totals</h4>
+                    <div class="space-y-3">
+                      <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                          <span class="flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-indigo-600"></span>Innovation</span>
+                          <span id="label-count-innovation">0 Projects</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div id="bar-width-innovation" class="bg-indigo-600 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                          <span class="flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-emerald-500"></span>Renovation</span>
+                          <span id="label-count-renovation">0 Projects</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div id="bar-width-renovation" class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                          <span class="flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-amber-500"></span>5S Program</span>
+                          <span id="label-count-5s">0 Projects</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div id="bar-width-5s" class="bg-amber-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                          <span class="flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-purple-500"></span>Others</span>
+                          <span id="label-count-others">0 Projects</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div id="bar-width-others" class="bg-purple-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Column 3: Project Phases Overview Bar Graph -->
+              <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col h-full">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                  <div>
+                    <h3 class="font-bold text-slate-900 text-lg">Project Phases Overview</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Active stages distribution</p>
+                  </div>
+                  <span class="text-xs text-indigo-600 font-semibold">Stage Gates (1-15)</span>
+                </div>
+                <div class="flex-1 flex flex-col justify-center" id="dashboard-phases-bar-chart">
+                  <div class="text-center text-slate-400 py-12 text-sm">No data available</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LINEAR MULTI-PROJECT GATE TRACKER MATRIX -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm overflow-hidden">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                  <h3 class="font-bold text-slate-900 text-lg">Linear Project Workflow Grid</h3>
+                  <p class="text-xs text-slate-400">Visual progress showing all 15 stages across Pre-start, Explore, Validate, and Execute Phases</p>
+                </div>
+                <div class="flex items-center gap-4 text-xs font-semibold">
+                  <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>Completed</span>
+                  <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>WIP / Hold</span>
+                  <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-slate-400"></span>N/A</span>
+                  <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full border border-slate-300 bg-white"></span>Not Started</span>
+                </div>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-100">
+                  <thead>
+                    <tr class="bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      <th class="py-3 px-4 min-w-[200px]">Project Name</th>
+                      <th class="py-3 px-2 text-center" colspan="3">Pre-start (1-3)</th>
+                      <th class="py-3 px-2 text-center border-l border-slate-200" colspan="3">Explore (4-6)</th>
+                      <th class="py-3 px-2 text-center border-l border-slate-200" colspan="6">Validate (7-12)</th>
+                      <th class="py-3 px-2 text-center border-l border-slate-200" colspan="3">Execute (13-15)</th>
+                      <th class="py-3 px-4 text-center">Stage</th>
+                    </tr>
+                    <tr class="bg-slate-100/50 text-[10px] font-bold text-slate-400 text-center uppercase tracking-wider">
+                      <th class="text-left py-2 px-4 font-semibold text-slate-500">Row Target</th>
+                      <!-- Pre-start -->
+                      <th class="py-2" title="Marketing Brief">M1</th>
+                      <th class="py-2" title="Technical Brief">T2</th>
+                      <th class="py-2" title="Start Gate">S3</th>
+                      <!-- Explore -->
+                      <th class="py-2 border-l border-slate-200" title="Idea Generation">I4</th>
+                      <th class="py-2" title="Idea Screening">S5</th>
+                      <th class="py-2" title="Develop Gate">D6</th>
+                      <!-- Validate -->
+                      <th class="py-2 border-l border-slate-200" title="Design & Proto">D7</th>
+                      <th class="py-2" title="Concept Lock">C8</th>
+                      <th class="py-2" title="Pilot Tool">P9</th>
+                      <th class="py-2" title="Pilot Test">T10</th>
+                      <th class="py-2" title="Feasibility">F11</th>
+                      <th class="py-2" title="Launch Lock Gate">L12</th>
+                      <!-- Execute -->
+                      <th class="py-2 border-l border-slate-200" title="Product Lock">P13</th>
+                      <th class="py-2" title="Launch Lock">L14</th>
+                      <th class="py-2" title="Scale-up">S15</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-matrix-body" class="divide-y divide-slate-100">
+                    <!-- Rows filled dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+
+          <!-- SCREEN B: MY PROJECTS (PROJECTS LIST) -->
+          <section id="screen-projects" class="hidden space-y-6 fade-in">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">My Projects</h2>
+                <p class="text-sm text-slate-500">Active packaging innovation, renovation, and 5S workflows</p>
+              </div>
+              <button
+                id="btn-create-project-list"
+                class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow hover:bg-indigo-500 cursor-pointer"
+              >
+                <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                <span>Create New Project</span>
+              </button>
+            </div>
+
+            <!-- Filter list tabs -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50 gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button id="project-filter-all" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition-all cursor-pointer">
+                    All Projects
+                  </button>
+                  <button id="project-filter-progress" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-150 transition-all cursor-pointer">
+                    In Progress
+                  </button>
+                  <button id="project-filter-completed" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-150 transition-all cursor-pointer">
+                    Completed
+                  </button>
+                  <button id="project-filter-hold" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-150 transition-all cursor-pointer">
+                    On Hold
+                  </button>
+                  <button id="project-filter-overdue" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:bg-slate-150 transition-all cursor-pointer">
+                    Overdue (>30d)
+                  </button>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-4">
+                  <!-- Type Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="filter-type-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Type</label>
+                    <select id="filter-type-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Types</option>
+                      <option value="Innovation">Innovation</option>
+                      <option value="Renovation">Renovation</option>
+                      <option value="5S">5S Program</option>
+                      <option value="Others">Others</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Stage Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="filter-stage-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage</label>
+                    <select id="filter-stage-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Stages</option>
+                      <option value="1">1: Marketing Brief</option>
+                      <option value="2">2: Technical Brief</option>
+                      <option value="3">3: Start Gate</option>
+                      <option value="4">4: Idea Generation</option>
+                      <option value="5">5: Idea Screening</option>
+                      <option value="6">6: Develop Gate</option>
+                      <option value="7">7: Design & Proto</option>
+                      <option value="8">8: Concept Lock</option>
+                      <option value="9">9: Pilot Tool</option>
+                      <option value="10">10: Pilot Test</option>
+                      <option value="11">11: Feasibility</option>
+                      <option value="12">12: Launch Lock Gate</option>
+                      <option value="13">13: Product Lock</option>
+                      <option value="14">14: Launch Lock</option>
+                      <option value="15">15: Scale-up</option>
+                    </select>
+                  </div>
+
+                  <!-- Phase Filter -->
+                  <div class="flex items-center gap-2">
+                    <label for="filter-phase-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phase</label>
+                    <select id="filter-phase-select" class="text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                      <option value="All">All Phases</option>
+                      <option value="Pre-start">Pre-start (1-3)</option>
+                      <option value="Explore">Explore (4-6)</option>
+                      <option value="Validate">Validate (7-12)</option>
+                      <option value="Execute">Execute (13-15)</option>
+                    </select>
+                  </div>
+
+                  <div class="text-xs font-medium text-slate-400" id="projects-count-badge">0 projects total</div>
+                </div>
+              </div>
+
+              <!-- Projects list Table -->
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-150 text-left">
+                  <thead>
+                    <tr class="bg-slate-50/50 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      <th class="py-3.5 px-6">Project Details</th>
+                      <th class="py-3.5 px-4">Start Date</th>
+                      <th class="py-3.5 px-4">End Date</th>
+                      <th class="py-3.5 px-4">Type</th>
+                      <th class="py-3.5 px-4">Category</th>
+                      <th class="py-3.5 px-4">Country</th>
+                      <th class="py-3.5 px-4">Current Stage</th>
+                      <th class="py-3.5 px-4">Traffic Light Status</th>
+                      <th class="py-3.5 px-4">Owner / Contributors</th>
+                      <th class="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="projects-table-body" class="divide-y divide-slate-100">
+                    <!-- Project rows loaded here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+
+          <!-- SCREEN C: CREATE NEW PROJECT -->
+          <section id="screen-new-project" class="hidden max-w-3xl mx-auto space-y-6 fade-in">
+            <div class="border-b border-slate-200 pb-5">
+              <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Setup New Packaging Project</h2>
+              <p class="mt-1 text-sm text-slate-500">Provide baseline details to generate the stage-gate linear workflow wizard.</p>
+            </div>
+
+            <form id="new-project-form" class="space-y-6 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+              <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Name -->
+                <div class="sm:col-span-6">
+                  <label for="p-name" class="block text-sm font-semibold text-slate-700">Project Name *</label>
+                  <input
+                    type="text"
+                    id="p-name"
+                    required
+                    placeholder="e.g. Sustainable PC Bottle Renovation"
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <!-- Type -->
+                <div class="sm:col-span-3">
+                  <label for="p-type" class="block text-sm font-semibold text-slate-700">Type of Project *</label>
+                  <select
+                    id="p-type"
+                    required
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="" disabled selected>Select project type</option>
+                    <option value="Innovation">Innovation</option>
+                    <option value="Renovation">Renovation</option>
+                    <option value="5S">5S Program</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
+
+                <!-- Category -->
+                <div class="sm:col-span-3">
+                  <label for="p-category" class="block text-sm font-semibold text-slate-700">Category *</label>
+                  <select
+                    id="p-category"
+                    required
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="" disabled selected>Select category</option>
+                    <option value="HC">HC (Home Care)</option>
+                    <option value="PC">PC (Personal Care)</option>
+                    <option value="B&W">B&W (Beauty & Wellbeing)</option>
+                    <option value="Foods">Foods</option>
+                    <option value="UI">UI</option>
+                  </select>
+                </div>
+
+                <!-- Type Details (Conditional) -->
+                <div class="sm:col-span-6 hidden" id="p-type-details-container">
+                  <label for="p-type-details" class="block text-sm font-semibold text-slate-700">Please Specify Others *</label>
+                  <input
+                    type="text"
+                    id="p-type-details"
+                    placeholder="Enter custom project workflow type"
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <!-- Country -->
+                <div class="sm:col-span-3">
+                  <label for="p-country" class="block text-sm font-semibold text-slate-700">Region / Country *</label>
+                  <select
+                    id="p-country"
+                    required
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="" disabled selected>Select country</option>
+                    <option value="Global">Global</option>
+                    <option value="India">India</option>
+                    <option value="Indonesia">Indonesia</option>
+                    <option value="Vietnam">Vietnam</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="China">China</option>
+                    <option value="Australia">Australia</option>
+                    <option value="New Zealand">New Zealand</option>
+                    <option value="Dubai">Dubai</option>
+                    <option value="Turkey">Turkey</option>
+                    <option value="England">England</option>
+                    <option value="Italy">Italy</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="USA">USA</option>
+                  </select>
+                </div>
+
+                <!-- Contributors / Team members -->
+                <div class="sm:col-span-3">
+                  <label for="p-contributors" class="block text-sm font-semibold text-slate-700">Contributors (Separate with comma)</label>
+                  <input
+                    type="text"
+                    id="p-contributors"
+                    placeholder="e.g. John Doe, Sarah Lee"
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  <span class="mt-1.5 block text-xs text-slate-400">Add user IDs or names who have write permissions on this project.</span>
+                </div>
+              </div>
+
+              <!-- Form error messages -->
+              <div id="new-project-error" class="hidden rounded-xl bg-red-50 p-4 border border-red-200">
+                <p id="new-project-error-text" class="text-sm font-semibold text-red-800"></p>
+              </div>
+
+              <div class="flex justify-end gap-3 border-t border-slate-100 pt-6">
+                <button
+                  type="button"
+                  id="btn-cancel-project"
+                  class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-indigo-500 cursor-pointer transition-all"
+                >
+                  <span>Initialize Workflow</span>
+                  <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </form>
+          </section>
+
+
+          <!-- SCREEN D: WORKFLOW WIZARD (THE CORE STAGE-GATE TRACKER) -->
+          <section id="screen-workflow-wizard" class="hidden space-y-6 fade-in">
+            <!-- Project Overview Summary Strip -->
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6 text-white shadow flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="wf-badge-type" class="inline-flex items-center rounded-md bg-indigo-400/10 px-2 py-1 text-xs font-semibold text-indigo-400 ring-1 ring-inset ring-indigo-400/20 uppercase tracking-wider">Innovation</span>
+                  <span id="wf-badge-category" class="inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-xs font-semibold text-slate-400 ring-1 ring-inset ring-slate-400/20 uppercase">HC</span>
+                  <span id="wf-badge-country" class="inline-flex items-center rounded-md bg-slate-400/10 px-2 py-1 text-xs font-semibold text-slate-400 ring-1 ring-inset ring-slate-400/20">India</span>
+                </div>
+                <h2 id="wf-project-name" class="text-xl font-bold mt-2 tracking-tight">Sustainable Bottle Renovation</h2>
+                <p id="wf-project-owner-meta" class="text-xs text-slate-400 mt-1">Owner: m2sunilb | Contributors: Admin</p>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button id="btn-wf-view-history" class="flex items-center gap-2 bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-sm font-semibold hover:text-white hover:bg-slate-700 transition-all cursor-pointer">
+                  <i data-lucide="history" class="h-4 w-4"></i>
+                  <span>Audit History</span>
+                </button>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div class="text-right">
+                  <span class="text-xs text-slate-400 block uppercase font-bold">Overall Project Status</span>
+                  <span id="wf-overall-status" class="inline-flex items-center rounded-full bg-blue-400/10 px-2.5 py-0.5 text-xs font-semibold text-blue-400 ring-1 ring-inset ring-blue-400/20">In Progress</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Double-deck navigation stepper -->
+            <!-- 1. Horizontal Phase Stepper (Pre-start, Explore, Validate, Execute) -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm grid grid-cols-4 gap-4 text-center">
+              <button id="phase-btn-1" class="phase-tab flex flex-col items-center justify-center py-2 px-1 rounded-xl cursor-pointer transition-all border border-transparent bg-slate-50 text-slate-600">
+                <span class="text-xs uppercase tracking-wider font-bold">Phase 1</span>
+                <span class="text-sm font-bold truncate max-w-full">Pre-start</span>
+              </button>
+              <button id="phase-btn-2" class="phase-tab flex flex-col items-center justify-center py-2 px-1 rounded-xl cursor-pointer transition-all border border-transparent text-slate-400">
+                <span class="text-xs uppercase tracking-wider font-bold">Phase 2</span>
+                <span class="text-sm font-bold truncate max-w-full">Explore</span>
+              </button>
+              <button id="phase-btn-3" class="phase-tab flex flex-col items-center justify-center py-2 px-1 rounded-xl cursor-pointer transition-all border border-transparent text-slate-400">
+                <span class="text-xs uppercase tracking-wider font-bold">Phase 3</span>
+                <span class="text-sm font-bold truncate max-w-full">Validate</span>
+              </button>
+              <button id="phase-btn-4" class="phase-tab flex flex-col items-center justify-center py-2 px-1 rounded-xl cursor-pointer transition-all border border-transparent text-slate-400">
+                <span class="text-xs uppercase tracking-wider font-bold">Phase 4</span>
+                <span class="text-sm font-bold truncate max-w-full">Execute</span>
+              </button>
+            </div>
+
+            <!-- Split Panel: Left (Stage steps inside Phase), Right (Active Stage details and actions) -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <!-- Left: Phase's Stage steps -->
+              <div class="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">Phase Steps</h3>
+                <div id="phase-stages-list" class="space-y-2">
+                  <!-- Dynamically populated vertical stage list -->
+                </div>
+              </div>
+
+              <!-- Right: Active Stage Form & Universal Footer -->
+              <div class="lg:col-span-3 space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6 flex flex-col min-h-[400px]">
+                  
+                  <!-- Stage Header -->
+                  <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <span id="active-stage-label" class="text-xs text-indigo-600 font-bold uppercase tracking-wider">Stage 1 of 15</span>
+                      <h3 id="active-stage-name" class="text-xl font-bold text-slate-900 mt-1">Marketing Brief Setup</h3>
+                    </div>
+                    <!-- Status dot indicator -->
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-semibold text-slate-400">Stage Status:</span>
+                      <span id="active-stage-status-badge" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                        <span class="h-2 w-2 rounded-full bg-slate-400"></span>Not Started
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Q&A Content Area (Stage specific fields) -->
+                  <div id="active-stage-qa-area" class="flex-1 py-4 space-y-6">
+                    <!-- Loaded dynamically via validation.js / workflow.js -->
+                  </div>
+
+                  <!-- Universal Attachment Area -->
+                  <div id="universal-attachment-container" class="border-t border-slate-100 pt-6 space-y-4">
+                    <div>
+                      <h4 class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                        <i data-lucide="paperclip" class="h-4 w-4 text-indigo-600"></i>
+                        <span>Stage Document Attachments</span>
+                      </h4>
+                      <p class="text-xs text-slate-400 mt-0.5">Attach supportive documentation (PDF, Office, Images). Max 10 MB limit per file.</p>
+                    </div>
+
+                    <!-- Upload Form & Drag Drop -->
+                    <div id="attachment-uploader-box" class="flex items-center justify-center w-full">
+                      <label for="stage-file-input" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                          <i data-lucide="upload-cloud" class="h-8 w-8 text-slate-400 mb-2"></i>
+                          <p class="mb-1 text-sm text-slate-500 font-semibold">Click to upload or drag & drop</p>
+                          <p class="text-xs text-slate-400">PDF, Excel, Word, PPT or Image up to 10 MB</p>
+                        </div>
+                        <input id="stage-file-input" type="file" class="hidden" />
+                      </label>
+                    </div>
+
+                    <!-- Current uploaded files display -->
+                    <div id="active-stage-files-list" class="space-y-2">
+                      <!-- List of attached files for this stage -->
+                    </div>
+                  </div>
+
+                  <!-- Universal Stage Footer Options -->
+                  <div id="universal-stage-footer" class="border-t border-slate-100 pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <!-- Progress Action Options -->
+                    <div class="flex gap-2">
+                      <button id="btn-status-proceed" class="px-5 py-2.5 text-sm font-semibold rounded-xl bg-green-600 text-white shadow-sm hover:bg-green-500 cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="check" class="h-4 w-4"></i>
+                        <span>Proceed</span>
+                      </button>
+                      <button id="btn-status-hold" class="px-5 py-2.5 text-sm font-semibold rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-400 cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="pause" class="h-4 w-4"></i>
+                        <span>On Hold</span>
+                      </button>
+                      <button id="btn-status-na" class="px-5 py-2.5 text-sm font-semibold rounded-xl bg-slate-500 text-white shadow-sm hover:bg-slate-400 cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="x" class="h-4 w-4"></i>
+                        <span>Not Applicable</span>
+                      </button>
+                    </div>
+
+                    <!-- Reason/Comment input if On Hold is active -->
+                    <div id="hold-reason-container" class="hidden flex-1 max-w-md">
+                      <div class="relative">
+                        <input
+                          type="text"
+                          id="hold-reason-input"
+                          placeholder="Provide mandatory reason for On Hold..."
+                          class="block w-full rounded-xl border border-slate-300 py-2.5 pl-3 pr-20 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                        <button id="btn-save-hold-reason" class="absolute right-1.5 top-1.5 bg-amber-600 text-white px-3 py-1 rounded-lg text-xs font-semibold hover:bg-amber-500 transition-all cursor-pointer">
+                          Apply Status
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Action Navigation Buttons -->
+                    <div class="flex gap-2">
+                      <button id="btn-wf-prev" class="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-1">
+                        <i data-lucide="chevron-left" class="h-4 w-4"></i>
+                        <span>Previous</span>
+                      </button>
+                      <button id="btn-wf-next" disabled class="px-4 py-2.5 rounded-xl bg-indigo-600 disabled:bg-indigo-300 text-white text-sm font-semibold shadow hover:bg-indigo-500 cursor-pointer flex items-center gap-1">
+                        <span>Next</span>
+                        <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+          <!-- SCREEN E: PROJECT AUDIT HISTORY LOG -->
+          <section id="screen-project-history" class="hidden max-w-4xl mx-auto space-y-6 fade-in">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-5">
+              <div>
+                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Project Version & Edit Audit History</h2>
+                <p class="mt-1 text-sm text-slate-500" id="history-project-subtitle">Complete version control and activity tracker log</p>
+              </div>
+              <button
+                id="btn-history-back"
+                class="flex items-center gap-1.5 border border-slate-300 rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                <span>Back to Workflow</span>
+              </button>
+            </div>
+
+            <!-- Version list layout -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+              <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                <i data-lucide="history" class="h-5 w-5 text-indigo-600"></i>
+                <span>Complete System Audit Log</span>
+              </h3>
+
+              <div class="flow-root">
+                <ul role="list" class="-mb-8" id="history-audit-timeline">
+                  <!-- Populated dynamically with timeline items -->
+                </ul>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- MAIN APP LOAD MODULES -->
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

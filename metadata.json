@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Packaging-Hub-v2",
+  "description": "Packaging-Hub-v2",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
