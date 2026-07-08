@@ -328,13 +328,22 @@ export const WorkflowModule = {
     document.getElementById('hold-reason-container').classList.add('hidden');
     document.getElementById('hold-reason-input').value = '';
 
+    // Show Not Applicable button for all stages
+    const naBtn = document.getElementById('btn-status-na');
+    if (naBtn) {
+      naBtn.classList.remove('hidden');
+    }
+
     // Enable/Disable next/previous navigations
     document.getElementById('btn-wf-prev').disabled = stageId === 1;
 
     // Next is enabled if the current stage is Green/Gray, OR if user has already passed this stage!
-    const isCompleted = status === 'Green' || status === 'Gray';
-    const hasPassed = stageId < project.currentStage;
-    document.getElementById('btn-wf-next').disabled = !(isCompleted || hasPassed);
+    // In stage 15, if status is 'Green' (Completed), 'Gray' (Not Applicable) or 'Amber' (On Hold), next button is enabled.
+    let isNextEnabled = status === 'Green' || status === 'Gray' || (stageId < project.currentStage);
+    if (stageId === 15) {
+      isNextEnabled = status === 'Green' || status === 'Gray' || status === 'Amber';
+    }
+    document.getElementById('btn-wf-next').disabled = !isNextEnabled;
 
     // Per user request, allow changes at any time even after crossing stage 15 / completing project
     const isLocked = false;
@@ -526,26 +535,25 @@ export const WorkflowModule = {
       }
       case 'design_prototype': {
         const method = answers.method || '';
+        const designSubMethod = answers.designSubMethod || '';
         const hasUsedPrototyping = answers.hasUsedPrototyping || '';
         const prototypingReason = answers.prototypingReason || '';
         const hasMade3D = answers.hasMade3D || '';
         const print3DReason = answers.print3DReason || '';
-        const technicalApproval = answers.technicalApproval === 'Yes';
-        const brandApproval = answers.brandApproval === 'Yes';
 
         html = `
           <div class="space-y-6">
-            <!-- Part 1: How to proceed -->
+            <!-- Part 1: How do you want to proceed? -->
             <div class="space-y-3">
-              <p class="text-sm font-semibold text-slate-700">${reqs.question}</p>
+              <p class="text-sm font-semibold text-slate-700">How do you want to proceed?</p>
               <div class="flex gap-4">
                 <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                  <input type="radio" name="design-method" value="Explore" ${method === 'Explore' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                  Explore existing designs
+                  <input type="radio" name="design-method" value="Explore" ${method === 'Explore' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                  Explore existing design
                 </label>
                 <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                  <input type="radio" name="design-method" value="Create" ${method === 'Create' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                  Create a new design
+                  <input type="radio" name="design-method" value="Create" ${method === 'Create' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                  Create new one
                 </label>
               </div>
             </div>
@@ -553,17 +561,24 @@ export const WorkflowModule = {
             <!-- Explore design message -->
             <div id="design-explore-msg" class="hidden text-sm bg-indigo-50 border border-indigo-150 p-4 rounded-xl text-indigo-700 font-semibold flex items-center gap-2">
               <i data-lucide="sparkles" class="h-5 w-5"></i>
-              <span>Use Unilever Pack Studio to look for existing pack designs first.</span>
+              <span>Use Unilever Pack studio to look for existing pack designs</span>
             </div>
 
             <!-- Create design forms -->
             <div id="design-create-form" class="hidden space-y-6 bg-slate-50 p-5 rounded-2xl border border-slate-200">
-              <div class="space-y-2">
-                <p class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Design Tool Guidelines</p>
-                <ul class="text-xs text-slate-600 list-disc list-inside space-y-1">
-                  <li>Create 2D inspiration through UCA / Adobe Firefly in Desire Lab, Mumbai</li>
-                  <li>Create 3D design from inspiration using Kaedim</li>
-                </ul>
+              <!-- Sub-question: How do you want to proceed -->
+              <div class="space-y-3">
+                <p class="text-sm font-semibold text-slate-700">How do you want to proceed</p>
+                <div class="space-y-2">
+                  <label class="flex items-start gap-2 text-sm font-medium text-slate-700">
+                    <input type="radio" name="design-sub-method" value="2D" ${designSubMethod === '2D' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    <span>Create 2D inspiration through UCA / Adobe firefly in Desire Lab, Mumbai</span>
+                  </label>
+                  <label class="flex items-start gap-2 text-sm font-medium text-slate-700">
+                    <input type="radio" name="design-sub-method" value="3D" ${designSubMethod === '3D' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    <span>Create 3D design from inspiration using Kaedim</span>
+                  </label>
+                </div>
               </div>
 
               <!-- Question 1 -->
@@ -571,59 +586,43 @@ export const WorkflowModule = {
                 <p class="text-sm font-semibold text-slate-700">Have you used the prototyping tools mentioned above? *</p>
                 <div class="flex gap-4">
                   <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <input type="radio" name="proto-used" value="Yes" ${hasUsedPrototyping === 'Yes' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                    Yes (Attach pictures)
+                    <input type="radio" name="proto-used" value="Yes" ${hasUsedPrototyping === 'Yes' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    Yes – attach the pictures
                   </label>
                   <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <input type="radio" name="proto-used" value="No" ${hasUsedPrototyping === 'No' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                    No (Provide reason)
+                    <input type="radio" name="proto-used" value="No" ${hasUsedPrototyping === 'No' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    No – Free text for reason
                   </label>
                 </div>
+                <div id="proto-yes-msg" class="hidden text-xs text-indigo-600 font-semibold bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center gap-2 animate-fade-in">
+                  <i data-lucide="image" class="h-4 w-4"></i>
+                  <span>Please attach the pictures using the attachment uploader below.</span>
+                </div>
                 <div id="proto-reason-box" class="hidden mt-2">
-                  <textarea id="proto-reason" rows="2" placeholder="Provide reason for not using virtual prototyping tools..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900"></textarea>
+                  <textarea id="proto-reason" rows="2" placeholder="Free text for reason..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500">${prototypingReason}</textarea>
                 </div>
               </div>
 
               <!-- Question 2 -->
               <div class="space-y-3 border-t border-slate-200 pt-4">
-                <p class="text-sm font-semibold text-slate-700">Following the digital 3D design, have you made a 3D prototype using the 3D printing capability in Desire Lab? *</p>
+                <p class="text-sm font-semibold text-slate-700">Following the Digital 3D design, Have you made 3D prototype using 3D printing capability available in Desire Lab? *</p>
                 <div class="flex gap-4">
                   <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <input type="radio" name="print-3d" value="Yes" ${hasMade3D === 'Yes' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                    Yes (Attach physical prototype pictures)
+                    <input type="radio" name="print-3d" value="Yes" ${hasMade3D === 'Yes' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    Yes – attach the pictures
                   </label>
                   <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                    <input type="radio" name="print-3d" value="No" ${hasMade3D === 'No' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300" />
-                    No (Provide reason)
+                    <input type="radio" name="print-3d" value="No" ${hasMade3D === 'No' ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500" />
+                    No – Free text for reason
                   </label>
                 </div>
-                <div id="print-reason-box" class="hidden mt-2">
-                  <textarea id="print-reason" rows="2" placeholder="Provide reason for not using physical 3D prototyping..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900"></textarea>
+                <div id="print-yes-msg" class="hidden text-xs text-indigo-600 font-semibold bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg flex items-center gap-2 animate-fade-in">
+                  <i data-lucide="image" class="h-4 w-4"></i>
+                  <span>Please attach the pictures using the attachment uploader below.</span>
                 </div>
-              </div>
-            </div>
-
-            <!-- Checkpoints section -->
-            <div class="border-t border-slate-100 pt-4 space-y-3">
-              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="check-square" class="h-4 w-4 text-indigo-600"></i>
-                <span>Mandatory Phase Sign-off Checkpoints</span>
-              </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label class="flex items-start gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" id="check-tech" ${technicalApproval ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
-                  <div>
-                    <span class="block text-xs font-bold text-slate-900">Technical Approval Checkpoint</span>
-                    <span class="block text-[10px] text-slate-500 mt-0.5">Signed off by Packaging Engineer</span>
-                  </div>
-                </label>
-                <label class="flex items-start gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" id="check-brand" ${brandApproval ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
-                  <div>
-                    <span class="block text-xs font-bold text-slate-900">Brand Approval Checkpoint</span>
-                    <span class="block text-[10px] text-slate-500 mt-0.5">Signed off by Marketing Brand Lead</span>
-                  </div>
-                </label>
+                <div id="print-reason-box" class="hidden mt-2">
+                  <textarea id="print-reason" rows="2" placeholder="Free text for reason..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500">${print3DReason}</textarea>
+                </div>
               </div>
             </div>
           </div>
@@ -799,6 +798,7 @@ export const WorkflowModule = {
         const launchTimeline = answers.launchTimeline || '';
         const workflowFieldVal = answers.workflowFieldVal || '';
         const finalSubmissionChecked = answers.finalSubmissionChecked === 'Yes';
+        const proceedClicked = answers.mptDecisionProceed === 'Yes';
 
         const is5S = project.type === '5S';
 
@@ -818,64 +818,84 @@ export const WorkflowModule = {
                 </label>
               </div>
               <div id="mpt-reason-box" class="hidden mt-2">
-                <textarea id="mpt-reason" rows="2" placeholder="Provide reason for not concluding the MPT trial..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm"></textarea>
+                <textarea id="mpt-reason" rows="2" placeholder="Provide reason for not concluding the MPT trial..." ${isLocked ? 'disabled' : ''} class="block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500">${mptReason}</textarea>
               </div>
             </div>
 
-            <!-- Question 2: AWS Specification Checkbox (MANDATORY) -->
-            <div class="space-y-2 border-t border-slate-200 pt-4">
-              <label class="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 cursor-pointer">
-                <input type="checkbox" id="aws-spec-check" ${isAWSChecked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
+            <!-- Decision proceeding or holding buttons -->
+            <div id="mpt-decisions-container" class="${hasDoneMPT ? '' : 'hidden'} flex gap-3 border-t border-slate-100 pt-4">
+              <button type="button" id="btn-mpt-proceed" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 cursor-pointer flex items-center gap-1.5 transition-all">
+                <i data-lucide="play" class="h-4 w-4"></i>
+                <span>Proceed to Final Sign-off</span>
+              </button>
+              <button type="button" id="btn-mpt-hold" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-400 cursor-pointer flex items-center gap-1.5 transition-all">
+                <i data-lucide="pause" class="h-4 w-4"></i>
+                <span>Place On Hold</span>
+              </button>
+            </div>
+
+            <!-- Final Agreement Container (shown if proceed is clicked or already clicked before) -->
+            <div id="final-agreement-container" class="${proceedClicked ? '' : 'hidden'} space-y-6 border-t border-slate-200 pt-5 fade-in">
+              <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                <i data-lucide="file-signature" class="h-4 w-4 text-indigo-600"></i>
+                <span>Final Agreement & Sign-off</span>
+              </h4>
+
+              <!-- Optional timeline and customized project field -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <span class="block text-sm font-bold text-slate-900">AWS Specification Sign-off *</span>
-                  <span class="block text-xs text-slate-500 mt-0.5">I agree that I have created and signed off Packaging & P&P specification in Unilever AWS tool.</span>
+                  <label for="timeline-date" class="block text-xs font-bold text-slate-700">Tentative Launch Timeline (Optional)</label>
+                  <input type="date" id="timeline-date" value="${launchTimeline}" ${isLocked ? 'disabled' : ''} class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm" />
                 </div>
-              </label>
-            </div>
 
-            <!-- Optional timeline and customized project field -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200 pt-4">
-              <div>
-                <label for="timeline-date" class="block text-xs font-bold text-slate-700">Tentative Launch Timeline (Optional)</label>
-                <input type="date" id="timeline-date" value="${launchTimeline}" ${isLocked ? 'disabled' : ''} class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm" />
+                <div>
+                  <label for="wf-custom-field" class="block text-xs font-bold text-slate-700">
+                    ${is5S ? 'Saving Numbers ($) *' : 'Tentative ITO Number (Optional)'}
+                  </label>
+                  <input 
+                    type="${is5S ? 'number' : 'text'}" 
+                    id="wf-custom-field" 
+                    value="${workflowFieldVal}" 
+                    ${isLocked ? 'disabled' : ''}
+                    placeholder="${is5S ? 'e.g. 150000' : 'e.g. ITO-45892'}" 
+                    class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500" 
+                  />
+                </div>
               </div>
 
-              <div>
-                <label for="wf-custom-field" class="block text-xs font-bold text-slate-700">
-                  ${is5S ? 'Saving Numbers ($) *' : 'Tentative ITO Number (Optional)'}
+              <!-- AWS Specification Checkbox (MANDATORY) -->
+              <div class="space-y-2">
+                <label class="flex items-start gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 cursor-pointer">
+                  <input type="checkbox" id="aws-spec-check" ${isAWSChecked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
+                  <div>
+                    <span class="block text-sm font-bold text-slate-900">AWS Specification Sign-off *</span>
+                    <span class="block text-xs text-slate-500 mt-0.5">I agree that I have created and signed off Packaging & P&P specification in Unilever AWS tool.</span>
+                  </div>
                 </label>
-                <input 
-                  type="${is5S ? 'number' : 'text'}" 
-                  id="wf-custom-field" 
-                  value="${workflowFieldVal}" 
-                  ${isLocked ? 'disabled' : ''}
-                  placeholder="${is5S ? 'e.g. 150000' : 'e.g. ITO-45892'}" 
-                  class="mt-2 block w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500" 
-                />
               </div>
-            </div>
 
-            <!-- Final project submission checkout (Activates Submit button!) -->
-            <div class="border-t border-slate-200 pt-5 space-y-4">
-              <label class="flex items-start gap-3 bg-indigo-50 p-4 rounded-xl border border-indigo-150 cursor-pointer">
-                <input type="checkbox" id="final-sub-check" ${finalSubmissionChecked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
-                <div>
-                  <span class="block text-sm font-extrabold text-indigo-900">Final Gate Submission Confirmation</span>
-                  <span class="block text-xs text-indigo-700 mt-0.5">Check this box to lock all stages and complete the "Packaging Hub" workflow tracker. This operation cannot be undone.</span>
+              <!-- Final project submission checkout (Activates Submit button!) -->
+              <div class="space-y-4">
+                <label class="flex items-start gap-3 bg-indigo-50 p-4 rounded-xl border border-indigo-150 cursor-pointer">
+                  <input type="checkbox" id="final-sub-check" ${finalSubmissionChecked ? 'checked' : ''} ${isLocked ? 'disabled' : ''} class="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 mt-0.5" />
+                  <div>
+                    <span class="block text-sm font-extrabold text-indigo-900">Final Gate Submission Confirmation</span>
+                    <span class="block text-xs text-indigo-700 mt-0.5">Check this box to lock all stages and complete the "Packaging Hub" workflow tracker. This operation cannot be undone.</span>
+                  </div>
+                </label>
+
+                <!-- Conditionally render Submit Button if scale-up is active -->
+                <div id="final-submit-btn-container" class="flex justify-end pt-2">
+                  <button 
+                    type="button" 
+                    id="btn-project-submit" 
+                    disabled
+                    class="bg-indigo-600 disabled:bg-indigo-300 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer transition-all flex items-center gap-2"
+                  >
+                    <i data-lucide="check-square" class="h-5 w-5"></i>
+                    <span>Submit & Finalize Project</span>
+                  </button>
                 </div>
-              </label>
-
-              <!-- Conditionally render Submit Button if scale-up is active -->
-              <div id="final-submit-btn-container" class="flex justify-end pt-2">
-                <button 
-                  type="button" 
-                  id="btn-project-submit" 
-                  disabled
-                  class="bg-indigo-600 disabled:bg-indigo-300 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer transition-all flex items-center gap-2"
-                >
-                  <i data-lucide="check-square" class="h-5 w-5"></i>
-                  <span>Submit & Finalize Project</span>
-                </button>
               </div>
             </div>
           </div>
@@ -885,6 +905,24 @@ export const WorkflowModule = {
     }
 
     qaArea.innerHTML = html;
+
+    // Manage visibility of universal-attachment-container
+    const attContainer = document.getElementById('universal-attachment-container');
+    if (attContainer) {
+      if (stageId === 3 || stageId === 6) {
+        attContainer.classList.add('hidden');
+      } else if (stageId === 1 || stageId === 2 || stageId === 8) {
+        if (answers.hasBrief === 'Yes') {
+          attContainer.classList.remove('hidden');
+        } else {
+          attContainer.classList.add('hidden');
+        }
+      } else if (stageId === 15) {
+        attContainer.classList.remove('hidden');
+      } else {
+        attContainer.classList.remove('hidden');
+      }
+    }
 
     // Bind sub-question visibility changes
     this.bindStageFieldsBehavior(stageId);
@@ -914,12 +952,15 @@ export const WorkflowModule = {
       const textReason = document.getElementById('brief-no-reason');
 
       const updateVisibility = (val) => {
+        const attContainer = document.getElementById('universal-attachment-container');
         if (val === 'Yes') {
           if (uploadMsg) uploadMsg.classList.remove('hidden');
           if (reasonBox) reasonBox.classList.add('hidden');
+          if (attContainer) attContainer.classList.remove('hidden');
         } else if (val === 'No') {
           if (uploadMsg) uploadMsg.classList.add('hidden');
           if (reasonBox) reasonBox.classList.remove('hidden');
+          if (attContainer) attContainer.classList.add('hidden');
         }
       };
 
@@ -1002,22 +1043,40 @@ export const WorkflowModule = {
       // Part B radios
       const protoRadios = document.querySelectorAll('input[name="proto-used"]');
       const protoReasonBox = document.getElementById('proto-reason-box');
+      const protoYesMsg = document.getElementById('proto-yes-msg');
       protoRadios.forEach(radio => {
         radio.addEventListener('change', e => {
-          if (e.target.value === 'No') protoReasonBox.classList.remove('hidden');
-          else protoReasonBox.classList.add('hidden');
+          if (e.target.value === 'No') {
+            protoReasonBox.classList.remove('hidden');
+            if (protoYesMsg) protoYesMsg.classList.add('hidden');
+          } else {
+            protoReasonBox.classList.add('hidden');
+            if (protoYesMsg) protoYesMsg.classList.remove('hidden');
+          }
         });
-        if (radio.checked && radio.value === 'No') protoReasonBox.classList.remove('hidden');
+        if (radio.checked) {
+          if (radio.value === 'No') protoReasonBox.classList.remove('hidden');
+          if (radio.value === 'Yes' && protoYesMsg) protoYesMsg.classList.remove('hidden');
+        }
       });
 
       const printRadios = document.querySelectorAll('input[name="print-3d"]');
       const printReasonBox = document.getElementById('print-reason-box');
+      const printYesMsg = document.getElementById('print-yes-msg');
       printRadios.forEach(radio => {
         radio.addEventListener('change', e => {
-          if (e.target.value === 'No') printReasonBox.classList.remove('hidden');
-          else printReasonBox.classList.add('hidden');
+          if (e.target.value === 'No') {
+            printReasonBox.classList.remove('hidden');
+            if (printYesMsg) printYesMsg.classList.add('hidden');
+          } else {
+            printReasonBox.classList.add('hidden');
+            if (printYesMsg) printYesMsg.classList.remove('hidden');
+          }
         });
-        if (radio.checked && radio.value === 'No') printReasonBox.classList.remove('hidden');
+        if (radio.checked) {
+          if (radio.value === 'No') printReasonBox.classList.remove('hidden');
+          if (radio.value === 'Yes' && printYesMsg) printYesMsg.classList.remove('hidden');
+        }
       });
     }
 
@@ -1126,30 +1185,89 @@ export const WorkflowModule = {
     if (stageId === 15) {
       const mptRadios = document.querySelectorAll('input[name="mpt-done"]');
       const mptReasonBox = document.getElementById('mpt-reason-box');
+      const decisionsContainer = document.getElementById('mpt-decisions-container');
+
+      const updateMPTStateVisibility = (val) => {
+        if (val === 'No') {
+          if (mptReasonBox) mptReasonBox.classList.remove('hidden');
+        } else {
+          if (mptReasonBox) mptReasonBox.classList.add('hidden');
+        }
+        if (val) {
+          if (decisionsContainer) decisionsContainer.classList.remove('hidden');
+        } else {
+          if (decisionsContainer) decisionsContainer.classList.add('hidden');
+        }
+      };
+
       mptRadios.forEach(radio => {
         radio.addEventListener('change', e => {
-          if (e.target.value === 'No') mptReasonBox.classList.remove('hidden');
-          else mptReasonBox.classList.add('hidden');
+          updateMPTStateVisibility(e.target.value);
         });
-        if (radio.checked && radio.value === 'No') mptReasonBox.classList.remove('hidden');
+        if (radio.checked) updateMPTStateVisibility(radio.value);
       });
 
-      // Enable submit button on final checkbox check
+      // Bind Proceed / Hold actions
+      const proceedBtn = document.getElementById('btn-mpt-proceed');
+      const holdBtn = document.getElementById('btn-mpt-hold');
+
+      if (proceedBtn) {
+        proceedBtn.addEventListener('click', async () => {
+          const answers = this.getStageQAAnswers(15);
+          answers.mptDecisionProceed = 'Yes';
+          
+          // Persist the decision
+          try {
+            const currentStatus = AppState.currentProject.stages[15]?.status || 'Amber';
+            const currentReason = AppState.currentProject.stages[15]?.reason || '';
+            const updatedProject = await ApiService.updateProjectStage(AppState.currentProject.id, 15, {
+              status: currentStatus,
+              reason: currentReason,
+              answers,
+            });
+            AppState.currentProject = updatedProject;
+            
+            // Re-render to show final agreement block
+            this.renderStageFields(15, AppState.currentProject.stages[15], false);
+          } catch (err) {
+            alert('Failed to proceed: ' + err.message);
+          }
+        });
+      }
+
+      if (holdBtn) {
+        holdBtn.addEventListener('click', () => {
+          const reasonContainer = document.getElementById('hold-reason-container');
+          if (reasonContainer) {
+            reasonContainer.classList.remove('hidden');
+            const input = document.getElementById('hold-reason-input');
+            if (input) {
+              input.value = "Placed on hold during Manufacturing Trial (MPT) decision point.";
+              input.focus();
+            }
+          }
+        });
+      }
+
+      // Final submission validation if elements are in DOM
       const awsCheck = document.getElementById('aws-spec-check');
       const submitCheck = document.getElementById('final-sub-check');
       const submitBtn = document.getElementById('btn-project-submit');
 
-      const validateSubmitState = () => {
-        submitBtn.disabled = !(awsCheck.checked && submitCheck.checked);
-      };
+      if (awsCheck && submitCheck && submitBtn) {
+        const validateSubmitState = () => {
+          submitBtn.disabled = !(awsCheck.checked && submitCheck.checked);
+        };
 
-      awsCheck.addEventListener('change', validateSubmitState);
-      submitCheck.addEventListener('change', validateSubmitState);
+        awsCheck.addEventListener('change', validateSubmitState);
+        submitCheck.addEventListener('change', validateSubmitState);
+        validateSubmitState();
 
-      // Handle final submit click
-      submitBtn.addEventListener('click', () => {
-        this.submitFinalProjectWorkflow();
-      });
+        // Handle final submit click
+        submitBtn.addEventListener('click', () => {
+          this.submitFinalProjectWorkflow();
+        });
+      }
     }
   },
 
@@ -1159,7 +1277,7 @@ export const WorkflowModule = {
 
     try {
       const files = await ApiService.getAttachments(AppState.currentProject.id);
-      this.attachments = files.filter(f => f.stageId === this.activeStageId);
+      this.attachments = files.filter(f => Number(f.stageId) === Number(this.activeStageId));
 
       if (this.attachments.length === 0) {
         listContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No files uploaded for this stage.</p>';
@@ -1185,6 +1303,14 @@ export const WorkflowModule = {
             >
               <i data-lucide="download" class="h-3.5 w-3.5"></i>
             </a>
+            <button 
+              type="button"
+              class="btn-delete-attachment text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center"
+              data-id="${f.id}"
+              title="Remove file"
+            >
+              <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+            </button>
           </div>
         </div>
       `
@@ -1192,6 +1318,23 @@ export const WorkflowModule = {
         .join('');
 
       lucide.createIcons();
+
+      // Bind delete handlers
+      const deleteButtons = listContainer.querySelectorAll('.btn-delete-attachment');
+      deleteButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const attachmentId = btn.getAttribute('data-id');
+          if (confirm('Are you sure you want to remove this file?')) {
+            try {
+              await ApiService.deleteAttachment(AppState.currentProject.id, attachmentId);
+              await this.loadAttachments();
+            } catch (err) {
+              alert('Failed to remove attachment: ' + err.message);
+            }
+          }
+        });
+      });
     } catch (e) {
       console.error('Failed to load attachments:', e);
     }
@@ -1252,20 +1395,23 @@ export const WorkflowModule = {
         const selectedRadio = document.querySelector('input[name="design-method"]:checked');
         answers.method = selectedRadio ? selectedRadio.value : '';
         if (answers.method === 'Create') {
+          const subMethodRadio = document.querySelector('input[name="design-sub-method"]:checked');
+          answers.designSubMethod = subMethodRadio ? subMethodRadio.value : '';
+
           const protoRadio = document.querySelector('input[name="proto-used"]:checked');
           answers.hasUsedPrototyping = protoRadio ? protoRadio.value : '';
           if (answers.hasUsedPrototyping === 'No') {
-            answers.prototypingReason = document.getElementById('proto-reason').value.trim();
+            const protoReasonEl = document.getElementById('proto-reason');
+            answers.prototypingReason = protoReasonEl ? protoReasonEl.value.trim() : '';
           }
 
           const printRadio = document.querySelector('input[name="print-3d"]:checked');
           answers.hasMade3D = printRadio ? printRadio.value : '';
           if (answers.hasMade3D === 'No') {
-            answers.print3DReason = document.getElementById('print-reason').value.trim();
+            const printReasonEl = document.getElementById('print-reason');
+            answers.print3DReason = printReasonEl ? printReasonEl.value.trim() : '';
           }
         }
-        answers.technicalApproval = document.getElementById('check-tech').checked ? 'Yes' : 'No';
-        answers.brandApproval = document.getElementById('check-brand').checked ? 'Yes' : 'No';
         break;
       }
       case 'pilot_tool': {
@@ -1313,12 +1459,24 @@ export const WorkflowModule = {
         const mptRadio = document.querySelector('input[name="mpt-done"]:checked');
         answers.hasDoneMPT = mptRadio ? mptRadio.value : '';
         if (answers.hasDoneMPT === 'No') {
-          answers.mptReason = document.getElementById('mpt-reason').value.trim();
+          const mptReasonEl = document.getElementById('mpt-reason');
+          answers.mptReason = mptReasonEl ? mptReasonEl.value.trim() : (project.stages[15]?.answers?.mptReason || '');
         }
-        answers.isAWSChecked = document.getElementById('aws-spec-check').checked ? 'Yes' : 'No';
-        answers.launchTimeline = document.getElementById('timeline-date').value;
-        answers.workflowFieldVal = document.getElementById('wf-custom-field').value.trim();
-        answers.finalSubmissionChecked = document.getElementById('final-sub-check').checked ? 'Yes' : 'No';
+
+        // Preserve previous state of sequential buttons if already clicked
+        answers.mptDecisionProceed = project.stages[15]?.answers?.mptDecisionProceed || '';
+
+        const awsSpecEl = document.getElementById('aws-spec-check');
+        answers.isAWSChecked = awsSpecEl ? (awsSpecEl.checked ? 'Yes' : 'No') : (project.stages[15]?.answers?.isAWSChecked || 'No');
+
+        const timelineEl = document.getElementById('timeline-date');
+        answers.launchTimeline = timelineEl ? timelineEl.value : (project.stages[15]?.answers?.launchTimeline || '');
+
+        const customFieldEl = document.getElementById('wf-custom-field');
+        answers.workflowFieldVal = customFieldEl ? customFieldEl.value.trim() : (project.stages[15]?.answers?.workflowFieldVal || '');
+
+        const finalSubEl = document.getElementById('final-sub-check');
+        answers.finalSubmissionChecked = finalSubEl ? (finalSubEl.checked ? 'Yes' : 'No') : (project.stages[15]?.answers?.finalSubmissionChecked || 'No');
         break;
       }
     }
@@ -1364,6 +1522,9 @@ export const WorkflowModule = {
           return { valid: false, error: 'Please select how you want to proceed.' };
         }
         if (answers.method === 'Create') {
+          if (!answers.designSubMethod) {
+            return { valid: false, error: 'Please select how you want to proceed under create new design.' };
+          }
           if (!answers.hasUsedPrototyping) {
             return { valid: false, error: 'Please answer if you have used prototyping tools.' };
           }
@@ -1383,9 +1544,6 @@ export const WorkflowModule = {
           if (answers.hasMade3D === 'Yes' && this.attachments.length === 0) {
             return { valid: false, error: 'Mandatory: Please attach physical prototype images.' };
           }
-        }
-        if (answers.technicalApproval !== 'Yes' || answers.brandApproval !== 'Yes') {
-          return { valid: false, error: 'Technical and Brand approval checkpoints are mandatory.' };
         }
         break;
       case 'pilot_tool':
@@ -1442,6 +1600,9 @@ export const WorkflowModule = {
         }
         break;
       case 'scale_up':
+        if (answers.mptDecisionProceed !== 'Yes') {
+          return { valid: false, error: 'Please select "Proceed to Final Sign-off" to unlock and complete the final agreement.' };
+        }
         if (!answers.hasDoneMPT) {
           return { valid: false, error: 'Please answer if Manufacturing Trials (MPT) were conducted.' };
         }
@@ -1469,6 +1630,11 @@ export const WorkflowModule = {
   async submitStageStatus(status, reason = '') {
     const project = AppState.currentProject;
     const stageId = this.activeStageId;
+
+    if (stageId === 15 && status === 'Green') {
+      await this.submitFinalProjectWorkflow();
+      return;
+    }
 
     // Get current form data
     const answers = this.getStageQAAnswers(stageId);
@@ -1533,6 +1699,8 @@ export const WorkflowModule = {
   navigateNext() {
     if (this.activeStageId < 15) {
       this.loadStage(this.activeStageId + 1);
+    } else if (this.activeStageId === 15) {
+      AppController.switchScreen('dashboard');
     }
   },
 

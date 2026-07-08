@@ -124,6 +124,12 @@ export const ApiService = {
     return await this.request(`/projects/${projectId}/attachments`);
   },
 
+  async deleteAttachment(projectId, attachmentId) {
+    return await this.request(`/projects/${projectId}/attachments/${attachmentId}`, {
+      method: 'DELETE',
+    });
+  },
+
   getAttachmentDownloadUrl(projectId, attachmentId) {
     return `${API_BASE}/projects/${projectId}/attachments/${attachmentId}/download`;
   },

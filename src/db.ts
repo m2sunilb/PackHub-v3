@@ -175,6 +175,14 @@ class Database {
     );
   }
 
+  async deleteAttachment(id: string): Promise<boolean> {
+    await this.load();
+    if (!this.data.attachments[id]) return false;
+    delete this.data.attachments[id];
+    await this.save();
+    return true;
+  }
+
   // Audit Logs
   async addAuditLog(log: AuditLog): Promise<AuditLog> {
     await this.load();

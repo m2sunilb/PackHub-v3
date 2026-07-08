@@ -601,6 +601,48 @@ app.get('/api/projects/:id/attachments', requireAuth, async (req, res) => {
   }
 });
 
+// 9.5. Delete Attachment
+app.delete('/api/projects/:id/attachments/:attachmentId', requireAuth, async (req, res) => {
+  const { id: projectId, attachmentId } = req.params;
+  const user = (req as any).user as User;
+
+  try {
+    const attachment = await db.getAttachment(attachmentId);
+    if (!attachment || attachment.projectId !== projectId) {
+      res.status(404).json({ error: 'Attachment not found' });
+      return;
+    }
+
+    // Attempt to delete file from disk
+    const fullPath = path.join(UPLOADS_DIR, attachment.filePath);
+    if (fs.existsSync(fullPath)) {
+      try {
+        fs.unlinkSync(fullPath);
+      } catch (err) {
+        console.error('Failed to delete file from disk:', err);
+      }
+    }
+
+    await db.deleteAttachment(attachmentId);
+
+    // Add Audit Log
+    await db.addAuditLog({
+      id: generateUUID(),
+      projectId,
+      stageId: attachment.stageId,
+      userId: user.id,
+      userName: user.name,
+      action: 'Proceed',
+      details: `Removed file '${attachment.filename}' from Stage ${attachment.stageId}.`,
+      timestamp: new Date().toISOString(),
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete attachment' });
+  }
+});
+
 // 10. Get Audit Log History
 app.get('/api/projects/:id/history', requireAuth, async (req, res) => {
   const projectId = req.params.id;
